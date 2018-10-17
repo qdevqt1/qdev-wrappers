@@ -15,9 +15,13 @@ import qcodes
 
 
 def _plot_setup(data, inst_meas, useQT=True, startranges=None,
-                auto_color_scale=None, cutoff_percentile=None):
+                auto_color_scale=None, cutoff_percentile=None,
+                title_note = None):
     title = "{} #{:03d}".format(CURRENT_EXPERIMENT["sample_name"],
                                 data.location_provider.counter)
+    if title_note is not None:
+        title = f'{title} {title_note}'
+
     rasterized_note = " rasterized plot"
     num_subplots = 0
     counter_two = 0

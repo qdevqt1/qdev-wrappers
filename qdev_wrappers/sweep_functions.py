@@ -59,7 +59,8 @@ def _select_plottables(tasks):
 
 def _do_measurement_single(measurement: Measure, meas_params: tuple,
                            do_plots: Optional[bool]=True,
-                           use_threads: bool=True) -> Tuple[QtPlot, DataSet]:
+                           use_threads: bool=True,
+                           title_note: str=None) -> Tuple[QtPlot, DataSet]:
 
     try:
         parameters = list(meas_params)
@@ -73,13 +74,13 @@ def _do_measurement_single(measurement: Measure, meas_params: tuple,
             print("Measurement Interrupted")
 
         if do_plots:
-            plot, _ = _plot_setup(data, meas_params)
+            plot, _ = _plot_setup(data, meas_params, title_note=title_note)
             # Ensure the correct scaling before saving
             plot.autorange()
             plot.save()
 
             if 'pdf_subfolder' in CURRENT_EXPERIMENT or 'png_subfolder' in CURRENT_EXPERIMENT:
-                _do_MatPlot(data,meas_params)
+                _do_MatPlot(data,meas_params, title_note=title_note)
 
         else:
             plot = None
@@ -189,11 +190,13 @@ def _do_measurement(loop: Loop, set_params: tuple, meas_params: tuple,
 
 def _do_MatPlot(data,meas_params,
                 auto_color_scale: Optional[bool]=None,
-                cutoff_percentile: Optional[Union[Tuple[Number, Number], Number]]=None):
+                cutoff_percentile: Optional[Union[Tuple[Number, Number], Number]]=None,
+                title_note=None):
     plt.ioff()
     plot, num_subplots = _plot_setup(data, meas_params, useQT=False,
                                      auto_color_scale=auto_color_scale,
-                                     cutoff_percentile=cutoff_percentile)
+                                     cutoff_percentile=cutoff_percentile,
+                                     title_note=title_note)
     # pad a bit more to prevent overlap between
     # suptitle and title
     plot.rescale_axis()
@@ -412,7 +415,7 @@ def do2d(inst_set, start, stop, num_points, delay,
     return plot, data
 
 
-def do0d(*inst_meas, do_plots=True, use_threads=False):
+def do0d(*inst_meas, do_plots=True, use_threads=False, title_note=None):
     """
     Args:
         *inst_meas:
@@ -426,5 +429,5 @@ def do0d(*inst_meas, do_plots=True, use_threads=False):
     measurement = qc.Measure(*inst_meas)
     meas_params = _select_plottables(inst_meas)
     plot, data = _do_measurement_single(
-        measurement, meas_params, do_plots=do_plots, use_threads=use_threads)
+        measurement, meas_params, do_plots=do_plots, use_threads=use_threads, title_note=title_note)
     return plot, data
